@@ -1,28 +1,24 @@
-import yfinance as yf
-import datetime 
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import scipy.stats as stats
+import requests
 
-def get_pairs(ticker=None):
-    if type(ticker) != str and ticker!= None:
-        raise ValueError
+#key 8d661ff9196adcc59e493c20c375732a8e3a101f
 
-    start = datetime.datetime(2015, 1, 1)
-    end = datetime.datetime(2021, 11, 15)
+def get_main_coins():
+    #btc
+    url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=eur&days=max&interval=minutes%5"
+    response_btc = requests.request("GET", url)    
+    
+    #eth
+    url = "https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=eur&days=max&interval=minutes%5"
+    response_eth = requests.request("GET", url)
+    
 
-    btc =  yf.download("BTC-USD", progress=True, actions=True,start=start, end=end)
-    eth =  yf.download("ETH-USD", progress=True, actions=True,start=start, end=end)
+    btc_df = pd.DataFrame(response_btc.json()["prices"],columns=["ts","price"],index="prices")
+    eth_df = pd.DataFrame(response_eth.json()["prices"],columns=["ts","price"])
 
-    if ticker != None:
-        other =  yf.download(ticker, progress=True, actions=True,start=start, end=end)
-        otehr_df = pd.DataFrame(other)
+    return btc_df,eth_df
 
-    bitcoin_df = pd.DataFrame(btc)
-    ethereum_df = pd.DataFrame(eth)
 
-    return bitcoin_df,ethereum_df
+btc_df,eth_df = get_main_coins()
 
-bitcoin_df,ethereum_df = get_pairs()
-
+print(btc_df)
