@@ -1,11 +1,8 @@
-from numpy.core.arrayprint import printoptions
-from numpy.core.defchararray import not_equal
 import pandas as pd
 import requests 
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-from requests.models import RequestHooksMixin
 from sklearn.preprocessing import MinMaxScaler
 import datetime as datetime
 
@@ -21,11 +18,13 @@ def get_coin_by_name(name,time="max"):
     scaler = MinMaxScaler()
     price_array = np.array(coin_df["price"]).reshape(-1,1)
 
+    # print(price_array)
     scaled_price = scaler.fit_transform(price_array)
-    # print(scaled_price)
+    print(scaled_price)
     scaled_price = [float(i) for i in scaled_price] #-> problem 
 
-    coin_df["scaled_price"] = scaled_price[0]
+
+    # coin_df["scaled_price"] = scaled_price[0]
 
     return  coin_df 
 
@@ -47,7 +46,7 @@ def avalable_currencyes():
 
 def plot_chart(coin1 ,coin2=None ,Name=""):
     #plot two coins 
-    fig = px.line(coin1, x="ts", y="scaled_price",title="")
+    fig = px.line(coin1, x="ts", y="scaled_price",title=Name)
     try:
         bool(coin2 != None )
     except:
@@ -59,14 +58,14 @@ def plot_chart(coin1 ,coin2=None ,Name=""):
 ###############################################################################################
 
 #get bitcoin and etherium data 
-main_coin_dict = get_main_coins(time=30)
-btc_df = main_coin_dict["bitcoin"]
-eth_df = main_coin_dict["ethereum"]
+# main_coin_dict = get_main_coins(time=30)
+# btc_df = main_coin_dict["bitcoin"]
+# eth_df = main_coin_dict["ethereum"]
 
 #get coin to compare 
 rand_coin = get_coin_by_name("decentraland",time=30)
 
 #plot_chart(btc_df,rand_coin)
 
-print(btc_df)
-print(eth_df)
+# print(btc_df)
+# print(eth_df)
