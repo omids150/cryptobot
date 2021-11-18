@@ -6,6 +6,17 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import datetime as datetime
 
+def scaleMinMax(a):
+    # use min max scaler 
+    scaler = MinMaxScaler()
+
+    price_array = np.array(a).reshape(-1,1)
+
+    scaled_price = scaler.fit_transform(price_array)
+    scaled_price = [float(i) for i in scaled_price] #-> problem 
+
+    return scaled_price
+
 def get_coin_by_name(name,time="max"):
     # get coin by name 
     url = f"https://api.coingecko.com/api/v3/coins/{name}/market_chart?vs_currency=eur&days={time}&interval=minutly" # -> warum bekomme ich nur Tägliche daten  ?
@@ -14,17 +25,7 @@ def get_coin_by_name(name,time="max"):
     coin_df["ts"] = pd.to_datetime(coin_df["ts"].div(1000.0), unit="s") # -> nicht ganz sicher ob das stimmt 
     coin_df.set_index("ts")
 
-    # Use min max Scaler on coins 
-    scaler = MinMaxScaler()
-    price_array = np.array(coin_df["price"]).reshape(-1,1)
-
-    # print(price_array)
-    scaled_price = scaler.fit_transform(price_array)
-    print(scaled_price)
-    scaled_price = [float(i) for i in scaled_price] #-> problem 
-
-
-    # coin_df["scaled_price"] = scaled_price[0]
+    coin_df["scaled_price"] = scaleMinMax(coin_df["price"])
 
     return  coin_df 
 
@@ -44,13 +45,14 @@ def avalable_currencyes():
     res = res.json()
     return pd.DataFrame(res)
 
-def plot_chart(coin1 ,coin2=None ,Name=""):
+def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
     #plot two coins 
-    fig = px.line(coin1, x="ts", y="scaled_price",title=Name)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1))
     try:
         bool(coin2 != None )
     except:
-        fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"]))
+        fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2))
     fig.show()
 
 ###############################################################################################
@@ -58,14 +60,15 @@ def plot_chart(coin1 ,coin2=None ,Name=""):
 ###############################################################################################
 
 #get bitcoin and etherium data 
-# main_coin_dict = get_main_coins(time=30)
-# btc_df = main_coin_dict["bitcoin"]
-# eth_df = main_coin_dict["ethereum"]
+main_coin_dict = get_main_coins(time=100)
+btc_df = main_coin_dict["bitcoin"]
+eth_df = main_coin_dict["ethereum"]
 
 #get coin to compare 
-rand_coin = get_coin_by_name("decentraland",time=30)
+rand_coin_name = "algorand"
 
-#plot_chart(btc_df,rand_coin)
+rand_coin = get_coin_by_name(rand_coin_name,time=100)
 
-# print(btc_df)
-# print(eth_df)
+# plot_chart(btc_df,"bitcoin",rand_coin,rand_coin_name)
+
+print(avalable_currencyes())
