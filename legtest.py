@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import datetime as datetime
+from lag_Corr import *
 
 def scaleMinMax(a):
     # use min max scaler 
@@ -56,7 +57,7 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
     fig.show()
 
 ###############################################################################################
-####################### ACTUAL CODE 
+####################### ACTUAL CODE ######################
 ###############################################################################################
 
 #get bitcoin and etherium data 
