@@ -16,5 +16,3 @@ def crosscorr(datax, datay, lag=0, wrap=False):
         return datax.corr(shiftedy)
     else: 
         return datax.corr(datay.shift(lag))
-
-

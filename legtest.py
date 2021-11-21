@@ -1,12 +1,13 @@
+from matplotlib.text import OffsetFrom
 import pandas as pd
 import requests 
-import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import datetime as datetime
 import lag_Corr as lg
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+
 
 def scaleMinMax(a):
     # use min max scaler 
@@ -79,23 +80,18 @@ rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
 # plot time series
 plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
-print(btc_df)
 
-d1 = rand_coin_df['scaled_price']
-d2 = btc_df['scaled_price']
-lag = 10
-fps = 30
+#calculate cross correlation
+corr1 = sm.tsa.stattools.ccf(btc_df["scaled_price"], rand_coin_df["scaled_price"], adjusted=False)
+corr2 = sm.tsa.stattools.ccf(rand_coin_df["scaled_price"], btc_df["scaled_price"], adjusted=False)
 
-rs = [lg.crosscorr(d1,d2, lag) for lag in range(-int(lag*fps),int(lag*fps+1))]
-#rs = [lg.crosscorr(d1,d2, lag) for lag in range(-int(lag),int(lag+1))]
+print("max corr1",max(corr1))
+print("max corr2",max(corr2))
 
-offset = np.floor(len(rs)/2)-np.argmax(rs)
-f,ax=plt.subplots(figsize=(14,3))
-ax.plot(rs)
-ax.axvline(np.ceil(len(rs)/2),color='k',linestyle='--',label='Center')
-ax.axvline(np.argmax(rs),color='r',linestyle='--',label='Peak synchrony')
-ax.set(title=f'Offset = {offset} frames\nS1 leads <> S2 leads', xlabel='Offset',ylabel='Pearson r')
-ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
-ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
-plt.legend()
-plt.show()
+
+if max(corr1) >= max(corr2):
+    result = np.where(corr1 == max(corr1) )
+else:
+    result = np.where(corr2 == max(corr2))
+
+print(corr1[result])
