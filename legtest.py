@@ -5,7 +5,8 @@ import plotly.graph_objects as go
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import datetime as datetime
-from lag_Corr import *
+import lag_Corr as lg
+import matplotlib.pyplot as plt
 
 def scaleMinMax(a):
     # use min max scaler 
@@ -20,7 +21,7 @@ def scaleMinMax(a):
 
 def get_coin_by_name(name,time="max"):
     # get coin by name 
-    url = f"https://api.coingecko.com/api/v3/coins/{name}/market_chart?vs_currency=eur&days={time}&interval=minutly" # -> warum bekomme ich nur Tägliche daten  ?
+    url = f"https://api.coingecko.com/api/v3/coins/{name}/market_chart?vs_currency=eur&days={time}&interval=minutes" # -> warum bekomme ich nur Tägliche daten  ?
     res = requests.request("GET", url)
     coin_df = pd.DataFrame(res.json()["prices"],columns=["ts","price"])
     coin_df["ts"] = pd.to_datetime(coin_df["ts"].div(1000.0), unit="s") # -> nicht ganz sicher ob das stimmt 
@@ -47,6 +48,9 @@ def avalable_currencyes():
     return pd.DataFrame(res)
 
 def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
+    if show_plots == False:
+        return
+
     #plot two coins 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1))
@@ -59,17 +63,39 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
 ###############################################################################################
 ####################### ACTUAL CODE ######################
 ###############################################################################################
+show_plots= False
+
+time = 30
+rand_coin_name = "algorand" 
 
 #get bitcoin and etherium data 
-main_coin_dict = get_main_coins(time=100)
+main_coin_dict = get_main_coins(time=time)
 btc_df = main_coin_dict["bitcoin"]
 eth_df = main_coin_dict["ethereum"]
 
 #get coin to compare 
-rand_coin_name = "algorand"
+rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
 
-rand_coin = get_coin_by_name(rand_coin_name,time=100)
+# plot time series
+plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
-# plot_chart(btc_df,"bitcoin",rand_coin,rand_coin_name)
+print(btc_df)
 
-print(avalable_currencyes())
+d1 = rand_coin_df['scaled_price']
+d2 = btc_df['scaled_price']
+lag = 10
+fps = 30
+
+rs = [lg.crosscorr(d1,d2, lag) for lag in range(-int(lag*fps),int(lag*fps+1))]
+#rs = [lg.crosscorr(d1,d2, lag) for lag in range(-int(lag),int(lag+1))]
+
+offset = np.floor(len(rs)/2)-np.argmax(rs)
+f,ax=plt.subplots(figsize=(14,3))
+ax.plot(rs)
+ax.axvline(np.ceil(len(rs)/2),color='k',linestyle='--',label='Center')
+ax.axvline(np.argmax(rs),color='r',linestyle='--',label='Peak synchrony')
+ax.set(title=f'Offset = {offset} frames\nS1 leads <> S2 leads', xlabel='Offset',ylabel='Pearson r')
+ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
+ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
+plt.legend()
+plt.show()
