@@ -1,4 +1,6 @@
+from os import terminal_size
 from matplotlib.text import OffsetFrom
+from numpy.core.arrayprint import printoptions
 import pandas as pd
 import requests 
 import plotly.graph_objects as go
@@ -64,7 +66,8 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
 ###############################################################################################
 ####################### ACTUAL CODE ######################
 ###############################################################################################
-show_plots= False
+
+show_plots= True # render or dont render plots
 
 time = 30
 rand_coin_name = "algorand" 
@@ -72,6 +75,8 @@ rand_coin_name = "algorand"
 #get bitcoin and etherium data 
 main_coin_dict = get_main_coins(time=time)
 btc_df = main_coin_dict["bitcoin"]
+btc_df["scaled_price"] = btc_df["scaled_price"].shift(10)
+btc_df.dropna()
 eth_df = main_coin_dict["ethereum"]
 
 #get coin to compare 
@@ -81,20 +86,8 @@ rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
 plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
 
-#calculate cross correlation
-corr1 = sm.tsa.stattools.ccf(btc_df["scaled_price"], rand_coin_df["scaled_price"], adjusted=False)
-corr2 = sm.tsa.stattools.ccf(rand_coin_df["scaled_price"], btc_df["scaled_price"], adjusted=False)
-
-print("max corr1",max(corr1))
-print("max corr2",max(corr2))
-
-
-if max(corr1) >= max(corr2):
-    result = np.where(corr1 == max(corr1) )
-else:
-    result = np.where(corr2 == max(corr2))
-
-print(corr1[result])
+#Plot haängt von lag ab und x achse sind indexes in der liste 
+#DYNAMISCH AUSPROGRAMIIEREN 
 
 d1 = btc_df['scaled_price']
 d2 = rand_coin_df['scaled_price']
@@ -106,10 +99,11 @@ f,ax=plt.subplots(figsize=(14,3))
 ax.plot(rs)
 ax.axvline(np.ceil(len(rs)/2),color='k',linestyle='--',label='Center')
 ax.axvline(np.argmax(rs),color='r',linestyle='--',label='Peak synchrony')
-ax.set(title=f'Offset = {offset} frames\nS1 leads <> S2 leads',ylim=[.1,.31],xlim=[0,301], xlabel='Offset',ylabel='Pearson r')
+ax.set(title=f'Offset = {offset} frames\nS1 leads <> S2 leads', xlabel='Offset',ylabel='Pearson r')
 ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
 ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
 
+print(offset)
 plt.legend()
 f.show()
 plt.savefig("./test.jpg")
