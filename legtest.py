@@ -95,3 +95,21 @@ else:
     result = np.where(corr2 == max(corr2))
 
 print(corr1[result])
+
+d1 = btc_df['scaled_price']
+d2 = rand_coin_df['scaled_price']
+seconds = 5
+fps = 30
+rs = [lg.crosscorr(d1,d2, lag) for lag in range(-int(seconds*fps),int(seconds*fps+1))]
+offset = np.floor(len(rs)/2)-np.argmax(rs)
+f,ax=plt.subplots(figsize=(14,3))
+ax.plot(rs)
+ax.axvline(np.ceil(len(rs)/2),color='k',linestyle='--',label='Center')
+ax.axvline(np.argmax(rs),color='r',linestyle='--',label='Peak synchrony')
+ax.set(title=f'Offset = {offset} frames\nS1 leads <> S2 leads',ylim=[.1,.31],xlim=[0,301], xlabel='Offset',ylabel='Pearson r')
+ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
+ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
+
+plt.legend()
+f.show()
+plt.savefig("./test.jpg")
