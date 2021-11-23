@@ -1,6 +1,7 @@
 from os import terminal_size
 from matplotlib.text import OffsetFrom
 from numpy.core.arrayprint import printoptions
+from numpy.core.fromnumeric import _searchsorted_dispatcher, sort
 import pandas as pd
 import requests 
 import plotly.graph_objects as go
@@ -63,6 +64,27 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
         fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2))
     fig.show()
 
+def detect_leg_corr(p1,p2,lag):
+
+    #Plot haängt von lag ab und x achse sind indexes in der liste 
+    #DYNAMISCH AUSPROGRAMIIEREN
+    res = {} 
+    for l in range(-int(lag),int(lag+1)):
+        res[l] = lg.crosscorr(p1,p2, l) 
+
+    sorted_res = dict(sorted(res.items(), key=lambda item: item[1],reverse=True))
+    peak_snyc = list(sorted_res.items())[0]
+
+    if show_plots == True:
+        f,ax=plt.subplots(figsize=(14,3))
+        ax.plot(res.keys(),res.values())
+        ax.axvline(0,color='k',linestyle='--',label='Center')
+        ax.axvline(peak_snyc[0],color='r',linestyle='--',label='Peak synchrony')
+        ax.set(title='lag between currencyes', xlabel='Offset',ylabel='Pearson r')
+
+
+    plt.savefig("./myplot.jpg")
+    
 ###############################################################################################
 ####################### ACTUAL CODE ######################
 ###############################################################################################
@@ -83,27 +105,8 @@ eth_df = main_coin_dict["ethereum"]
 rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
 
 # plot time series
-plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
+# plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
+#detect logs 
+detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],150)
 
-#Plot haängt von lag ab und x achse sind indexes in der liste 
-#DYNAMISCH AUSPROGRAMIIEREN 
-
-d1 = btc_df['scaled_price']
-d2 = rand_coin_df['scaled_price']
-seconds = 5
-fps = 30
-rs = [lg.crosscorr(d1,d2, lag) for lag in range(-int(seconds*fps),int(seconds*fps+1))]
-offset = np.floor(len(rs)/2)-np.argmax(rs)
-f,ax=plt.subplots(figsize=(14,3))
-ax.plot(rs)
-ax.axvline(np.ceil(len(rs)/2),color='k',linestyle='--',label='Center')
-ax.axvline(np.argmax(rs),color='r',linestyle='--',label='Peak synchrony')
-ax.set(title=f'Offset = {offset} frames\nS1 leads <> S2 leads', xlabel='Offset',ylabel='Pearson r')
-ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
-ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
-
-print(offset)
-plt.legend()
-f.show()
-plt.savefig("./test.jpg")
