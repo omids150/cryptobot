@@ -25,7 +25,7 @@ def scaleMinMax(a):
 
 def get_coin_by_name(name,time="max"):
     # get coin by name 
-    url = f"https://api.coingecko.com/api/v3/coins/{name}/market_chart?vs_currency=eur&days={time}&interval=minutes" # -> warum bekomme ich nur Tägliche daten  ?
+    url = f"https://api.coingecko.com/api/v3/coins/{name}/market_chart?vs_currency=eur&days={time}&interval=minutely%20" # DATEN NICHT SAUBER !!!
     res = requests.request("GET", url)
     coin_df = pd.DataFrame(res.json()["prices"],columns=["ts","price"])
     coin_df["ts"] = pd.to_datetime(coin_df["ts"].div(1000.0), unit="s") # -> nicht ganz sicher ob das stimmt 
@@ -57,11 +57,11 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2=""):
 
     #plot two coins 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1))
+    fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1,mode="markers"))
     try:
         bool(coin2 != None )
     except:
-        fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2))
+        fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2,mode="markers"))
     fig.show()
 
 def detect_leg_corr(p1,p2,lag):
@@ -94,19 +94,19 @@ show_plots= True # render or dont render plots
 time = 30
 rand_coin_name = "algorand" 
 
-#get bitcoin and etherium data 
-main_coin_dict = get_main_coins(time=time)
-btc_df = main_coin_dict["bitcoin"]
-btc_df["scaled_price"] = btc_df["scaled_price"].shift(10)
-btc_df.dropna()
-eth_df = main_coin_dict["ethereum"]
+if __name__=="__main__":    #get bitcoin and etherium data 
+    main_coin_dict = get_main_coins(time=time)
+    btc_df = main_coin_dict["bitcoin"]
+    btc_df["scaled_price"] = btc_df["scaled_price"].shift(10)
+    btc_df.dropna()
+    eth_df = main_coin_dict["ethereum"]
 
-#get coin to compare 
-rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
+    #get coin to compare 
+    rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
 
-# plot time series
-# plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
+    # plot time series
+    plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
-#detect logs 
-detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],150)
+    #detect logs 
+    detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],150)
 
