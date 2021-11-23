@@ -1,6 +1,8 @@
 from legtest import *
 import pandas as pd
 
+# time = 1
+# time = 30# how many days showld the history data go back
 time = 90 # how many days showld the history data go back
 lag = 300
 

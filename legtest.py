@@ -1,3 +1,4 @@
+from numpy.core.arrayprint import printoptions
 import pandas as pd
 import requests 
 import plotly.graph_objects as go
@@ -58,7 +59,8 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2="",mode="lines"):
         fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2,mode=mode))
     fig.show()
 
-def detect_leg_corr(p1,p2,lag):
+def detect_leg_corr(p1,p2,lag=100):
+
     #caluclate sycrony 
     res = {} 
     for l in range(-int(lag),int(lag+1)):
@@ -77,8 +79,13 @@ def lag_plot(res,peak_snyc):
         ax.axvline(peak_snyc[0],color='r',linestyle='--',label='Peak synchrony')
         ax.set(title='lag between currencyes', xlabel='Offset',ylabel='Pearson r')
 
-
     plt.savefig("./myplot.jpg")
+
+def calc_std(df):
+    #      normal std        std with scaled prices 
+    return df["price"].std(),df["scaled_price"].std()
+
+
 
 def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
     # (to see if leader and folower change not nesserery)
@@ -90,8 +97,8 @@ def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
 
 show_plots= True # render or dont render plots
 
-time = 1000 #how many days showld the history data go back
-lag = 300
+time = 90#how many days showld the history data go back -> only up to one 90 days possile
+leg = 300
 
 #tezos hoch 
 rand_coin_name = "tezos" #name of rand coin to get 
@@ -107,8 +114,12 @@ if __name__=="__main__":    #get bitcoin and etherium data
     # plot time series
     plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
-    # #detect logs 
-    # peak_sync,sorted_res,res = detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],lag)
+    print(btc_df)
 
-    # #plot lag plot 
-    # lag_plot(res,peak_snyc = peak_sync)
+    # #detect logs 
+    peak_sync,sorted_res,res = detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],leg=leg)
+
+    #plot lag plot 
+    lag_plot(res,peak_snyc = peak_sync)
+
+    print(list(sorted_res.items())[:5])
