@@ -1,11 +1,11 @@
-from numpy.core.arrayprint import printoptions
 import pandas as pd
 import requests 
 import plotly.graph_objects as go
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import lag_Corr as lg
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
+import logging
 
 def scaleMinMax(a):
     # use min max scaler 
@@ -18,6 +18,22 @@ def scaleMinMax(a):
 
     return scaled_price
 
+def clean_data(df1,df2):
+    # bring dfs to same lenth if not already 
+
+    if len(df1) > len(df2):
+        df1 = df1.tail(len(df2))
+        df1.reset_index()
+    elif len(df1) < len(df2):
+        df2 = df2.tail(len(df1))
+        # df2.reset_index()
+    elif len(df1) == len(df2):
+        logging.info("no ajustment needed")
+    else:
+        raise Warning
+
+    return df1,df2
+    
 def get_coin_by_name(name,time="max"):
     # get coin by name 
     url = f"https://api.coingecko.com/api/v3/coins/{name}/market_chart?vs_currency=eur&days={time}&interval=minutely%20" # DATEN NICHT SAUBER !!!
@@ -47,8 +63,6 @@ def avalable_currencyes():
     return pd.DataFrame(res)
 
 def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2="",mode="lines"):
-    if show_plots == False:
-        return
 
     #plot two coins 
     fig = go.Figure()
@@ -60,11 +74,12 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2="",mode="lines"):
     fig.show()
 
 def detect_leg_corr(p1,p2,lag=100):
+    # FUNCTION KIND OF BROKEN
 
     #caluclate sycrony 
     res = {} 
     for l in range(-int(lag),int(lag+1)):
-        res[l] = lg.crosscorr(p1,p2, l) 
+        res[l] = lg.crosscorr_vector(p1,p2, l) # !!!!!!!!!!!!!!!!!!!!!!!!!
 
     sorted_res = dict(sorted(res.items(), key=lambda item: item[1],reverse=True))
     peak_snyc = list(sorted_res.items())[0]
@@ -72,12 +87,11 @@ def detect_leg_corr(p1,p2,lag=100):
     return peak_snyc,sorted_res,res
 
 def lag_plot(res,peak_snyc):
-    if show_plots == True:
-        f,ax=plt.subplots(figsize=(14,3))
-        ax.plot(res.keys(),res.values())
-        ax.axvline(0,color='k',linestyle='--',label='Center')
-        ax.axvline(peak_snyc[0],color='r',linestyle='--',label='Peak synchrony')
-        ax.set(title='lag between currencyes', xlabel='Offset',ylabel='Pearson r')
+    f,ax=plt.subplots(figsize=(14,3))
+    ax.plot(res.keys(),res.values())
+    ax.axvline(0,color='k',linestyle='--',label='Center')
+    ax.axvline(peak_snyc[0],color='r',linestyle='--',label='Peak synchrony')
+    ax.set(title='lag between currencyes', xlabel='Offset',ylabel='Pearson r')
 
     plt.savefig("./myplot.jpg")
 
@@ -85,41 +99,12 @@ def calc_std(df):
     #      normal std        std with scaled prices 
     return df["price"].std(),df["scaled_price"].std()
 
-
-
 def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
+    #FUNCTION KIND OF BROKEN
+
     # (to see if leader and folower change not nesserery)
-    pass
+    samples_per_split = len(p1)/no_splits
+
+    for t in range(0, no_splits):
+        spit_p1 = p1.loc[(t)*samples_per_split:(t+1)*samples_per_split]
     
-###############################################################################################
-####################### ACTUAL CODE ######################
-###############################################################################################
-
-show_plots= True # render or dont render plots
-
-time = 90#how many days showld the history data go back -> only up to one 90 days possile
-leg = 300
-
-#tezos hoch 
-rand_coin_name = "tezos" #name of rand coin to get 
-
-if __name__=="__main__":    #get bitcoin and etherium data 
-    main_coin_dict = get_main_coins(time=time)
-    btc_df = main_coin_dict["bitcoin"]
-    eth_df = main_coin_dict["ethereum"]
-
-    #get coin to compare 
-    rand_coin_df = get_coin_by_name(rand_coin_name,time=time)
-
-    # plot time series
-    plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
-
-    print(btc_df)
-
-    # #detect logs 
-    peak_sync,sorted_res,res = detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],leg=leg)
-
-    #plot lag plot 
-    lag_plot(res,peak_snyc = peak_sync)
-
-    print(list(sorted_res.items())[:5])

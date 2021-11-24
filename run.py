@@ -1,17 +1,16 @@
-from legtest import *
-import pandas as pd
+from numpy.core.arrayprint import printoptions
+import lagtest as lg 
+rand_coin_name = "tezos" #name of rand coin to get 
+time = 30
 
-# time = 1
-# time = 30# how many days showld the history data go back
-time = 90 # how many days showld the history data go back
-lag = 300
-
-# get main coins to compare and calculate cross corrolation
-main_coin_dict = get_main_coins(time=time)
-
+main_coin_dict = lg.get_main_coins(time=time)
 btc_df = main_coin_dict["bitcoin"]
 eth_df = main_coin_dict["ethereum"]
 
-btc_df.iloc[1]["price"] = None 
+#get coin to compare 
+rand_coin_df = lg.get_coin_by_name(rand_coin_name,time=time)
 
-print(btc_df.head(5)) 
+btc_df["price_vec"] = list(btc_df[["ts","scaled_price"]].to_records(index=False))
+rand_coin_df["price_vec"] = list(rand_coin_df[["ts","scaled_price"]].to_records(index=False))
+
+btc_df["price_vec"].corr(rand_coin_df["price_vec"].shift(0))
