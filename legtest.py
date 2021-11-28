@@ -109,4 +109,3 @@ if __name__=="__main__":    #get bitcoin and etherium data
 
     #detect logs 
     detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],150)
-
