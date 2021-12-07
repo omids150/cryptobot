@@ -29,6 +29,7 @@ if __name__=="__main__":    #get bitcoin and etherium data
     # plot lag plot 
     lg.lag_plot(res,peak_snyc = peak_sync)
 
-    # lg.windowed_time_lagged_cross_correlation(btc_df["scaled_price"],rand_coin_df["scaled_price"],lag=lag,no_splits=no_splits)
+    rss = lg.windowed_time_lagged_cross_correlation(btc_df["scaled_price"],rand_coin_df["scaled_price"],lag=lag,no_splits=no_splits)
 
-    print(peak_sync,sorted_res,res)
+    lg.plot_window_lag_cross_correlation(rss)
+    #print(peak_sync,sorted_res,res)

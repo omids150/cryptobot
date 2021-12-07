@@ -6,6 +6,8 @@ from sklearn.preprocessing import MinMaxScaler
 import lag_Corr as lg
 import matplotlib.pyplot as plt 
 import logging
+import seaborn as sns
+
 
 def scaleMinMax(a):
     # use min max scaler 
@@ -98,10 +100,24 @@ def calc_std(df):
     return df["price"].std(),df["scaled_price"].std()
 
 def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
-
-    # (to see if leader and folower change not nesserery)
+    # to see when and if leader and follower roll changes
     samples_per_split = len(p1)/no_splits
 
+    rss = []
     for t in range(0, no_splits):
-        spit_p1 = p1.loc[(t)*samples_per_split:(t+1)*samples_per_split]
+        split_p1 = p1.loc[(t)*samples_per_split:(t+1)*samples_per_split]
+        split_p2 = p2.loc[(t)*samples_per_split:(t+1)*samples_per_split]
+        rs = detect_leg_corr(split_p1,split_p2,lag=lag)
+        rss.append(rs[2])
     
+    return pd.DataFrame(rss)
+
+def plot_window_lag_cross_correlation(rss):
+    #plots Heatmap of window cross corrolation
+    f,ax = plt.subplots(figsize=(10,5))
+    sns.heatmap(rss,cmap='RdBu_r',ax=ax)
+    ax.set(title=f'Windowed Time Lagged Cross Correlation',xlim=[0,301], xlabel='Offset',ylabel='Window epochs')
+    ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
+    ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
+
+    plt.savefig("./heatmap.jpg")
