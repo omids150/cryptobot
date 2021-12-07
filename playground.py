@@ -23,8 +23,7 @@ if __name__=="__main__":    #get bitcoin and etherium data
     lg.plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
 
     # # detect logs 
-    # peak_sync,sorted_res,res = lg.detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],lag=lag)
-    peak_sync,sorted_res,res = lg.detect_leg_corr(btc_df[["ts","scaled_price"]],rand_coin_df[["ts","scaled_price"]],lag=lag) #!!!!!!!!!!!!!!!!!!!
+    peak_sync,sorted_res,res = lg.detect_leg_corr(btc_df["scaled_price"],rand_coin_df["scaled_price"],lag=lag)
 
 
     # plot lag plot 

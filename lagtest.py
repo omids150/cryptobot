@@ -74,12 +74,10 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2="",mode="lines"):
     fig.show()
 
 def detect_leg_corr(p1,p2,lag=100):
-    # FUNCTION KIND OF BROKEN
-
     #caluclate sycrony 
     res = {} 
     for l in range(-int(lag),int(lag+1)):
-        res[l] = lg.crosscorr_vector(p1,p2, l) # !!!!!!!!!!!!!!!!!!!!!!!!!
+        res[l] = lg.crosscorr(p1,p2, l) 
 
     sorted_res = dict(sorted(res.items(), key=lambda item: item[1],reverse=True))
     peak_snyc = list(sorted_res.items())[0]
@@ -100,7 +98,6 @@ def calc_std(df):
     return df["price"].std(),df["scaled_price"].std()
 
 def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
-    #FUNCTION KIND OF BROKEN
 
     # (to see if leader and folower change not nesserery)
     samples_per_split = len(p1)/no_splits
