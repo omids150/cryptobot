@@ -75,6 +75,17 @@ def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2="",mode="lines"):
         fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2,mode=mode))
     fig.show()
 
+
+def plot_chartV2(coin_dict,mode="lines"):
+
+    #plot two coins 
+    fig = go.Figure()
+    for coin in coin_dict.items():
+        fig.add_trace(go.Scatter(x=coin[1]["ts"], y=coin[1]["scaled_price"],name=coin[0],mode=mode))
+
+
+    fig.show()
+
 def detect_leg_corr(p1,p2,lag=100):
     #caluclate sycrony 
     res = {} 
@@ -108,8 +119,10 @@ def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
         split_p1 = p1.loc[(t)*samples_per_split:(t+1)*samples_per_split]
         split_p2 = p2.loc[(t)*samples_per_split:(t+1)*samples_per_split]
         rs = detect_leg_corr(split_p1,split_p2,lag=lag)
+        #print("num:",t," ->",rs[2])
         rss.append(rs[2])
-    
+
+        print(rss)
     return pd.DataFrame(rss)
 
 def plot_window_lag_cross_correlation(rss):
@@ -117,7 +130,7 @@ def plot_window_lag_cross_correlation(rss):
     f,ax = plt.subplots(figsize=(10,5))
     sns.heatmap(rss,cmap='RdBu_r',ax=ax)
     ax.set(title=f'Windowed Time Lagged Cross Correlation', xlabel='Offset',ylabel='Window epochs')
-    ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
-    ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
+    # ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
+    # ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
 
     plt.savefig("./heatmap.jpg")
