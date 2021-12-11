@@ -116,7 +116,7 @@ def plot_window_lag_cross_correlation(rss):
     #plots Heatmap of window cross corrolation
     f,ax = plt.subplots(figsize=(10,5))
     sns.heatmap(rss,cmap='RdBu_r',ax=ax)
-    ax.set(title=f'Windowed Time Lagged Cross Correlation',xlim=[0,301], xlabel='Offset',ylabel='Window epochs')
+    ax.set(title=f'Windowed Time Lagged Cross Correlation', xlabel='Offset',ylabel='Window epochs')
     ax.set_xticks([0, 50, 100, 151, 201, 251, 301])
     ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
 
