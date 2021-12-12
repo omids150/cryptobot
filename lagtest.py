@@ -1,3 +1,4 @@
+from numpy.core.fromnumeric import sort
 import pandas as pd
 import requests 
 import plotly.graph_objects as go
@@ -88,6 +89,7 @@ def plot_chartV2(coin_dict,mode="lines"):
 
 def detect_leg_corr(p1,p2,lag=100):
     #caluclate sycrony 
+    # negativer lag p2 gibt p1 an  
     res = {} 
     for l in range(-int(lag),int(lag+1)):
         res[l] = lg.crosscorr(p1,p2, l) 
@@ -97,14 +99,14 @@ def detect_leg_corr(p1,p2,lag=100):
 
     return peak_snyc,sorted_res,res
 
-def lag_plot(res,peak_snyc):
+def lag_plot(res,peak_snyc,image_name="./myplot.jpg"):
     f,ax=plt.subplots(figsize=(14,3))
     ax.plot(res.keys(),res.values())
     ax.axvline(0,color='k',linestyle='--',label='Center')
     ax.axvline(peak_snyc[0],color='r',linestyle='--',label='Peak synchrony')
     ax.set(title='lag between currencyes', xlabel='Offset',ylabel='Pearson r')
 
-    plt.savefig("./myplot.jpg")
+    plt.savefig(image_name)
 
 def calc_std(df):
     #      normal std        std with scaled prices 
@@ -122,7 +124,6 @@ def windowed_time_lagged_cross_correlation(p1,p2,lag,no_splits):
         #print("num:",t," ->",rs[2])
         rss.append(rs[2])
 
-        print(rss)
     return pd.DataFrame(rss)
 
 def plot_window_lag_cross_correlation(rss):
@@ -134,3 +135,14 @@ def plot_window_lag_cross_correlation(rss):
     # ax.set_xticklabels([-150, -100, -50, 0, 50, 100, 150])
 
     plt.savefig("./heatmap.jpg")
+
+def dominant_coin(rss,n_splits):
+    sum_col = rss.sum()
+    print(sum_col[1])
+    scores_per_lag = sum_col/n_splits
+
+
+    sorted_res = dict(sorted(scores_per_lag.items(), key=lambda item: item[1],reverse=True))
+    peak_snyc = list(sorted_res.items())[0]
+    
+    lag_plot(dict(scores_per_lag),peak_snyc,image_name="./dom_coin.jpg")

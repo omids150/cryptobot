@@ -3,11 +3,11 @@ import lagtest as lg
 show_plots= True # render or dont render plots
 
 time = 30 #how many days showld the history data go back -> only up to one 90 days possile
-lag = 20 # till up to which lag do you want to compare the data 
-no_splits = 50 # number of splits for window time lagges corrolation
+lag = 50 # till up to which lag do you want to compare the data 
+no_splits = 15 # number of splits for window time lagges corrolation
 
 #tezos hoch 
-rand_coin_name = "tezos" #name of rand coin to get 
+rand_coin_name = "filecoin" #name of rand coin to get 
 
 if __name__=="__main__":    #get bitcoin and etherium data 
     main_coin_dict = lg.get_main_coins(time=time)
@@ -18,7 +18,6 @@ if __name__=="__main__":    #get bitcoin and etherium data
     rand_coin_df = lg.get_coin_by_name(rand_coin_name,time=time)
 
     btc_df, rand_coin_df = lg.clean_data(btc_df,rand_coin_df)
-    print(len(btc_df))
 
     # plot time series
     lg.plot_chart(btc_df,"bitcoin",rand_coin_df,rand_coin_name)
@@ -33,3 +32,5 @@ if __name__=="__main__":    #get bitcoin and etherium data
     # Number of legs and window can result in nan Values 
     rss = lg.windowed_time_lagged_cross_correlation(btc_df["scaled_price"],rand_coin_df["scaled_price"],lag=lag,no_splits=no_splits)
     lg.plot_window_lag_cross_correlation(rss)
+
+    lg.dominant_coin(rss,n_splits=no_splits)
