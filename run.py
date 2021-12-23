@@ -1,4 +1,3 @@
-from numpy.core.arrayprint import printoptions
 import lagtest as lg 
 rand_coin_name = "tezos" #name of rand coin to get 
 time = 30
