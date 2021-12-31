@@ -8,6 +8,7 @@ import lag_Corr as lg
 import matplotlib.pyplot as plt 
 import logging
 import seaborn as sns
+import config as cfg
 
 
 def scaleMinMax(a):
@@ -65,16 +66,10 @@ def avalable_currencyes():
     res = res.json()
     return pd.DataFrame(res)
 
-def plot_chart(coin1,coinName1="" ,coin2=None ,coinName2="",mode="lines"):
-
+def plot_chart(coin1,coinName1="",mode="lines"):
     #plot two coins 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1,mode=mode))
-    try:
-        bool(coin2 != None )
-    except:
-        fig.add_trace(go.Scatter(x=coin2["ts"], y=coin2["scaled_price"],name=coinName2,mode=mode))
-    fig.show()
 
 
 def plot_chartV2(coin_dict,mode="lines"):
