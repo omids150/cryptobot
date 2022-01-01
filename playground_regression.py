@@ -1,13 +1,11 @@
-import lagtest as lg
+from numpy.lib.function_base import _calculate_shapes
+import lagtestV2 as lg
 
-time = 60
+main_coins = ["BTC","ETH","ADA","XRP","SOL"]
 
-# make regression (non-linear) of domient crypto currencies 
-dominant_crypto_curr = ["bitcoin","ethereum","cardano","ripple","solana"]
 
-main_coin_dict = lg.get_main_coins(names=dominant_crypto_curr,time=time)
+main_coins_df = lg.get_main_coins_eod(main_coins,start=15,interval="1m")
 
-lg.plot_chartV2(main_coin_dict,mode="markers")
-# calculate std deviation to reg funtion 
+btc = main_coins_df["BTC"]
 
-# treade outliers 
+lg.calc_retuns(btc["scaled_price"])

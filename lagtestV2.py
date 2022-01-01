@@ -11,6 +11,7 @@ import logging
 import seaborn as sns
 import config as cfg
 from time import time 
+
 def scaleMinMax(a):
     # use min max scaler to scale data into compareble prices 
     scaler = MinMaxScaler()
@@ -62,3 +63,6 @@ def plot_chartV2(coin_dict,mode="lines"):
         fig.add_trace(go.Scatter(x=coin[1]["ts"], y=coin[1]["scaled_price"],name=coin[0],mode=mode))
 
     fig.show()
+
+def calc_retuns(p):
+    print(p-p.shift(1)) 
