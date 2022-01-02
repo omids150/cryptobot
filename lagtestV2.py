@@ -5,6 +5,9 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import config as cfg
 from time import time
+import lag_Corr as lg 
+import matplotlib.pyplot as plt 
+
 
 from lagtest import windowed_time_lagged_cross_correlation 
 
@@ -53,7 +56,7 @@ def plot_chart(coin1,coinName1="",mode="lines"):
 
     return fig
 
-def addMovingAndStd(fig,coin):
+def addMovingAndStd_toPlot(fig,coin):
     fig.add_trace(go.Scatter(x=coin.index, y=coin["rolling"],line_color = "black",mode="lines"))
     upper = coin["rolling"]+coin["scaled_price_std"]
     lower = coin["rolling"]-coin["scaled_price_std"]
@@ -97,3 +100,27 @@ def joinTimeSeries(Dict,window=300):
     df = returnsAndStd(df,rolling=True,window=window)
 
     return df 
+
+def detect_leg_corr(p1,p2,lag=100):
+    #caluclate sycrony 
+    # negativer lag p2 gibt p1 an  
+    res = {} 
+    for l in range(-int(lag),int(lag+1)):
+        res[l] = lg.crosscorr(p1,p2, l) 
+
+    sorted_res = dict(sorted(res.items(), key=lambda item: item[1],reverse=True))
+    peak_snyc = list(sorted_res.items())[0]
+
+    return peak_snyc,sorted_res,res
+
+def lag_plot(res,peak_snyc,image_name="./myplot.jpg"):
+
+    image_name = "./images/"+image_name
+
+    f,ax=plt.subplots(figsize=(14,3))
+    ax.plot(res.keys(),res.values())
+    ax.axvline(0,color='k',linestyle='--',label='Center')
+    ax.axvline(peak_snyc[0],color='r',linestyle='--',label='Peak synchrony')
+    ax.set(title='lag between currencyes', xlabel='Offset',ylabel='Pearson r')
+
+    plt.savefig(image_name)

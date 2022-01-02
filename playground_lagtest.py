@@ -10,9 +10,6 @@ main_coins = ["BTC","ETH","ADA","XRP","SOL"]
 
 main_coins_df = lg.get_main_coins_eod(main_coins,start=15,interval="5m")
 
-lg.plot_chartV2(main_coins_df)
+fig = lg.plot_chartV2(main_coins_df)
 
-
-
-
-
+fig.show()
