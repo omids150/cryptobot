@@ -1,4 +1,7 @@
 import importlib
+from os import PRIO_PGRP
+from typing import Dict
+from numpy.core.arrayprint import printoptions
 from numpy.core.fromnumeric import sort
 import pandas as pd
 import requests 
@@ -10,7 +13,9 @@ import matplotlib.pyplot as plt
 import logging
 import seaborn as sns
 import config as cfg
-from time import time 
+from time import time
+
+from lagtest import windowed_time_lagged_cross_correlation 
 
 def scaleMinMax(a):
     # use min max scaler to scale data into compareble prices 
@@ -37,6 +42,7 @@ def get_coin_by_name_eod(name,interval="1m",start=30,end=time()):
     coin_df = coin_df.rename(columns={"datetime": "ts"})
 
     coin_df["scaled_price"] = scaleMinMax(coin_df["close"])
+    coin_df = coin_df.set_index("ts")
 
     return coin_df
 
@@ -52,17 +58,17 @@ def get_main_coins_eod(names=["BTC","ETH"],interval="1m",start=30,end=time()):
 def plot_chart(coin1,coinName1="",mode="lines"):
     #plot one coins 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1,mode=mode))
+    fig.add_trace(go.Scatter(x=coin1.index, y=coin1["scaled_price"],name=coinName1,mode=mode))
 
     return fig
 
 def addMovingAndStd(fig,coin):
-    fig.add_trace(go.Scatter(x=coin["ts"], y=coin["rolling"],mode="lines"))
+    fig.add_trace(go.Scatter(x=coin.index, y=coin["rolling"],mode="lines"))
     upper = coin["rolling"]+coin["scaled_price_std"]
     lower = coin["rolling"]-coin["scaled_price_std"]
 
-    fig.add_trace(go.Scatter(x=coin["ts"], y=upper, fill=None ,mode="lines"))
-    fig.add_trace(go.Scatter(x=coin["ts"], y=lower,fill="tonexty",mode="lines"))
+    fig.add_trace(go.Scatter(x=coin.index, y=upper, fill=None ,mode="lines"))
+    fig.add_trace(go.Scatter(x=coin.index, y=lower,fill="tonexty",mode="lines"))
 
     return fig
 
@@ -89,3 +95,17 @@ def returnsAndStd(coin,rolling = False,window = 300):
 
     return coin 
     
+def joinTimeSeries(Dict,window=300):
+    df = pd.DataFrame()
+
+    for d in Dict.items():       
+        scaled_price = d[1].drop(columns=['timestamp', 'gmtoffset',"open","high","close","low","volume"])
+        Dict[d[0]] = scaled_price.rename(columns={"scaled_price": d[0]})
+    
+    for d in Dict.items():  
+        df = df.join(d[1],how="outer")
+
+    df["avg"] = df.mean(axis=1)
+    df = returnsAndStd(df,rolling=True,window=window)
+
+    return df 
