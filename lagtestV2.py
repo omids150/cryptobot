@@ -54,7 +54,17 @@ def plot_chart(coin1,coinName1="",mode="lines"):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=coin1["ts"], y=coin1["scaled_price"],name=coinName1,mode=mode))
 
-    fig.show()
+    return fig
+
+def addMovingAndStd(fig,coin):
+    fig.add_trace(go.Scatter(x=coin["ts"], y=coin["rolling"],mode="lines"))
+    upper = coin["rolling"]+coin["scaled_price_std"]
+    lower = coin["rolling"]-coin["scaled_price_std"]
+
+    fig.add_trace(go.Scatter(x=coin["ts"], y=upper, fill=None ,mode="lines"))
+    fig.add_trace(go.Scatter(x=coin["ts"], y=lower,fill="tonexty",mode="lines"))
+
+    return fig
 
 def plot_chartV2(coin_dict,mode="lines"):
     #plot dict of coins 
@@ -62,7 +72,20 @@ def plot_chartV2(coin_dict,mode="lines"):
     for coin in coin_dict.items():
         fig.add_trace(go.Scatter(x=coin[1]["ts"], y=coin[1]["scaled_price"],name=coin[0],mode=mode))
 
-    fig.show()
+    return fig 
 
-def calc_retuns(p):
-    print(p-p.shift(1)) 
+# def calc_retuns(p):
+#     return p-p.shift(1)
+
+# def calc_std(p):
+#     return p.std()
+
+def returnsAndStd(coin,rolling = False,window = 300):
+    coin["returns"] = coin["scaled_price"]-coin["scaled_price"].shift(1)
+    coin["scaled_price_std"] = coin["scaled_price"].std()
+
+    if rolling == True:
+        coin["rolling"] = coin["scaled_price"].rolling(window).mean()
+
+    return coin 
+    

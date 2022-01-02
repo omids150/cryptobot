@@ -14,5 +14,5 @@ lg.plot_chartV2(main_coins_df)
 
 
 
-print(main_coins_df)
+
 
