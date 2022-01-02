@@ -8,17 +8,12 @@ join_df = lg.joinTimeSeries(main_coins)
 
 print(join_df)
 
-print(main_coins["BTC"])
+fig = lg.plot_chart(join_df)
 
-#######
+fig = lg.addMovingAndStd(fig,join_df)
 
-# btc = lg.get_coin_by_name_eod("BTC")
+print(main_coins)
 
-# print(btc[["timestamp","scaled_price"]])
+fig = lg.plot_chartV2(coin_dict=main_coins, fig=fig)
 
-# btc = lg.returnsAndStd(btc,rolling=True)
-
-# fig = lg.plot_chart(btc,mode="markers")
-
-# fig = lg.addMovingAndStd(fig,btc)
-
+fig.show()

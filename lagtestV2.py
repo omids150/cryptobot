@@ -1,17 +1,8 @@
-import importlib
-from os import PRIO_PGRP
-from typing import Dict
-from numpy.core.arrayprint import printoptions
-from numpy.core.fromnumeric import sort
 import pandas as pd
 import requests 
 import plotly.graph_objects as go
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import lag_Corr as lg
-import matplotlib.pyplot as plt 
-import logging
-import seaborn as sns
 import config as cfg
 from time import time
 
@@ -63,28 +54,24 @@ def plot_chart(coin1,coinName1="",mode="lines"):
     return fig
 
 def addMovingAndStd(fig,coin):
-    fig.add_trace(go.Scatter(x=coin.index, y=coin["rolling"],mode="lines"))
+    fig.add_trace(go.Scatter(x=coin.index, y=coin["rolling"],line_color = "black",mode="lines"))
     upper = coin["rolling"]+coin["scaled_price_std"]
     lower = coin["rolling"]-coin["scaled_price_std"]
 
-    fig.add_trace(go.Scatter(x=coin.index, y=upper, fill=None ,mode="lines"))
-    fig.add_trace(go.Scatter(x=coin.index, y=lower,fill="tonexty",mode="lines"))
+    fig.add_trace(go.Scatter(x=coin.index, y=upper,line_color = "#52A4F6",fill=None ,mode="lines"))
+    fig.add_trace(go.Scatter(x=coin.index, y=lower,line_color = "#52A4F6" ,fill="tonexty",mode="lines"))
 
     return fig
 
-def plot_chartV2(coin_dict,mode="lines"):
+def plot_chartV2(coin_dict,mode="lines",fig=None):
     #plot dict of coins 
-    fig = go.Figure()
+    if fig == None:
+        fig = go.Figure()
+
     for coin in coin_dict.items():
-        fig.add_trace(go.Scatter(x=coin[1]["ts"], y=coin[1]["scaled_price"],name=coin[0],mode=mode))
+        fig.add_trace(go.Scatter(x=coin[1].index, y=coin[1]["scaled_price"],name=coin[0],mode=mode))
 
     return fig 
-
-# def calc_retuns(p):
-#     return p-p.shift(1)
-
-# def calc_std(p):
-#     return p.std()
 
 def returnsAndStd(coin,rolling = False,window = 300):
     coin["returns"] = coin["scaled_price"]-coin["scaled_price"].shift(1)
@@ -96,16 +83,17 @@ def returnsAndStd(coin,rolling = False,window = 300):
     return coin 
     
 def joinTimeSeries(Dict,window=300):
+    # this function also alters the orignial data frames!!!
+
     df = pd.DataFrame()
 
     for d in Dict.items():       
-        scaled_price = d[1].drop(columns=['timestamp', 'gmtoffset',"open","high","close","low","volume"])
-        Dict[d[0]] = scaled_price.rename(columns={"scaled_price": d[0]})
+        scaled_price = d[1].copy(deep=True).drop(columns=['timestamp', 'gmtoffset',"open","high","close","low","volume"])
+        join = scaled_price.rename(columns={"scaled_price": d[0]})
     
-    for d in Dict.items():  
-        df = df.join(d[1],how="outer")
+        df = df.join(join,how="outer")
 
-    df["avg"] = df.mean(axis=1)
+    df["scaled_price"] = df.mean(axis=1)  # avrage price of all ticker in pool
     df = returnsAndStd(df,rolling=True,window=window)
 
     return df 
