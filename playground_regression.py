@@ -17,6 +17,6 @@ fig = lg.plot_chartV2(coin_dict=main_coins, fig=fig)
 
 fig.show()
 
-#peak_snyc,sorted_res,res =  lg.detect_leg_corr(main_coins["XRP"]["scaled_price"],join_df["scaled_price"])
-#lg.lag_plot(res,peak_snyc)
+peak_snyc,sorted_res,res =  lg.detect_leg_corr(main_coins["XRP"]["scaled_price"],join_df["scaled_price"])
+lg.lag_plot(res,peak_snyc)
 
