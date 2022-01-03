@@ -37,6 +37,7 @@ def get_coin_by_name_eod(name,interval="1m",start=30,end=time()):
 
     coin_df["scaled_price"] = scaleMinMax(coin_df["close"])
     coin_df = coin_df.set_index("ts")
+    coin_df.index = pd.to_datetime(coin_df.index)
 
     return coin_df
 
