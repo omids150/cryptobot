@@ -50,6 +50,32 @@ def get_main_coins_eod(names=["BTC","ETH"],interval="1m",start=30,end=time()):
     
     return coin_dict
 
+def returnsAndStd(coin,rolling = True,window = 300):
+    coin["returns"] = coin["scaled_price"]-coin["scaled_price"].shift(1)
+    coin["scaled_price_std"] = coin["scaled_price"].std()
+
+    if rolling == True:
+        coin["rolling"] = coin["scaled_price"].rolling(window).mean()
+
+    return coin 
+
+def joinTimeSeries(Dict,window=300):
+    # this function also alters the orignial data frames!!!
+
+    df = pd.DataFrame()
+
+    for d in Dict.items():       
+        scaled_price = d[1].copy(deep=True).drop(columns=['timestamp', 'gmtoffset',"open","high","close","low","volume"])
+        join = scaled_price.rename(columns={"scaled_price": d[0]})
+    
+        df = df.join(join,how="outer")
+
+    df["scaled_price"] = df.mean(axis=1)  # avrage price of all ticker in pool
+    df = returnsAndStd(df,rolling=True,window=window)
+
+
+    return df 
+
 def plot_chart(coin1,coinName1="",mode="lines"):
     #plot one coins 
     fig = go.Figure()
@@ -77,31 +103,6 @@ def plot_chartV2(coin_dict,mode="lines",fig=None):
 
     return fig 
 
-def returnsAndStd(coin,rolling = False,window = 300):
-    coin["returns"] = coin["scaled_price"]-coin["scaled_price"].shift(1)
-    coin["scaled_price_std"] = coin["scaled_price"].std()
-
-    if rolling == True:
-        coin["rolling"] = coin["scaled_price"].rolling(window).mean()
-
-    return coin 
-    
-def joinTimeSeries(Dict,window=300):
-    # this function also alters the orignial data frames!!!
-
-    df = pd.DataFrame()
-
-    for d in Dict.items():       
-        scaled_price = d[1].copy(deep=True).drop(columns=['timestamp', 'gmtoffset',"open","high","close","low","volume"])
-        join = scaled_price.rename(columns={"scaled_price": d[0]})
-    
-        df = df.join(join,how="outer")
-
-    df["scaled_price"] = df.mean(axis=1)  # avrage price of all ticker in pool
-    df = returnsAndStd(df,rolling=True,window=window)
-
-    return df 
-
 def detect_leg_corr(p1,p2,lag=100):
     #caluclate sycrony 
     # negativer lag p2 gibt p1 an  
@@ -117,6 +118,8 @@ def detect_leg_corr(p1,p2,lag=100):
 def lag_plot(res,peak_snyc,image_name="./myplot.jpg"):
 
     image_name = "./images/"+image_name
+
+    print(res.keys())
 
     f,ax=plt.subplots(figsize=(14,3))
     ax.plot(res.keys(),res.values())

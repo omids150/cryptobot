@@ -8,9 +8,12 @@ cerebro.broker.setcash(100000.0)
 cerebro.addstrategy(TestStrategy)
 
 # get and add data feed 
-dataframe = lg.get_coin_by_name_eod("BTC",start=2,interval="30m")
+dataframe = lg.get_coin_by_name_eod("BTC",start=1)
 
-dataframe.index = pd.to_datetime(dataframe.index)
+# main_coins = ["BTC","ETH","ADA","XRP","SOL"]
+# main_coins = lg.get_main_coins_eod(main_coins,start=30,interval="1m")
+# join_df = lg.joinTimeSeries(main_coins)
+
 
 data = bt.feeds.PandasData(dataname=dataframe)
 cerebro.adddata(data)
