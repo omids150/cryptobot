@@ -41,7 +41,7 @@ def get_coin_by_name_eod(name,interval="1m",start=30,end=time()):
 
     return coin_df
 
-def get_main_coins_eod(names=["BTC","ETH"],interval="1m",start=30,end=time()):
+def get_main_coins_eod(names=["BTC","ETH","ADA","XRP","SOL"],interval="1m",start=30,end=time()):
     coin_dict = {}
 
     for n in names: 
