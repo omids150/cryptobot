@@ -73,7 +73,6 @@ def joinTimeSeries(Dict,window=300):
     df["scaled_price"] = df.mean(axis=1)  # avrage price of all ticker in pool
     df = returnsAndStd(df,rolling=True,window=window)
 
-
     return df 
 
 def plot_chart(coin1,coinName1="",mode="lines"):
