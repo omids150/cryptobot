@@ -1,5 +1,6 @@
 import backtrader as bt
 import lagtestV2 as lg 
+import time
 
 ############ GET CORR DATA #############
 def get_corr_data(start=30):
@@ -14,7 +15,7 @@ class custemData(bt.feeds.PandasData):
     lines = ("rolling","scaled_price","scaled_price_std")
     params =(
             ("scaled_price",5),
-            ("scaled_price_std",6)
+            ("scaled_price_std",6),
             ("rolling", 7),
             )
     
@@ -30,10 +31,18 @@ class TestStrategy(bt.Strategy):
         # Keep a reference to the "close" line in the data[0] dataseries
         self.rolling = self.datas[0].rolling
         self.scaled_price = self.datas[0].scaled_price
-
+        self.scaled_price_std = self.datas[0].scaled_price_std[0]
         
 
     def next(self):
         pass
         # Simply log the closing price of the series from the reference
-        #self.log(f'BTC: {self.scaled_price[0]} rolling: {self.rolling[0]}' )
+        self.log(f'BTC: {self.scaled_price[0]} rolling: {self.rolling[0]} std_scaled_price: {self.scaled_price_std}')
+
+        if self.scaled_price < self.scaled_price_std-self.rolling:
+            self.buy()
+            self.order = self.buy()
+        elif self.scaled_price > self.scaled_price_std+self.rolling:
+            self.sell()
+            self.order = self.sell()
+        

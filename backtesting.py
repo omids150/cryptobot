@@ -3,21 +3,22 @@ from backtraider_func import *
 import lagtestV2 as lg 
 
 cerebro = bt.Cerebro(runonce=False)
-cerebro.broker.setcash(100000.0)
+cerebro.broker.setcash(100000000.0)
 cerebro.addstrategy(TestStrategy)
 
-dataframe = lg.get_coin_by_name_eod("BTC",start=1)
+Time = 30
+
+dataframe = lg.get_coin_by_name_eod("BTC",start=Time)
 
 ################
 ################
 ################
 
-ind = get_corr_data(start=1)
+ind = get_corr_data(start=Time)
 # print(ind)
 # print(dataframe)
 
 datafeed = dataframe.join(ind,how="outer")
-print(datafeed)
 ################
 ################
 ################
@@ -35,4 +36,4 @@ cerebro.run(unonce=False)
 
 print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-#cerebro.plot(iplot=False)
+cerebro.plot(iplot=False)
