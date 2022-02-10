@@ -34,6 +34,7 @@ def get_coin_by_name_eod(name,interval="1m",start=30,end=time()):
     response = requests.request("GET", url)
     coin_df = pd.DataFrame(response.json())
     coin_df = coin_df.rename(columns={"datetime": "ts"})
+    coin_df = coin_df.drop(columns=["timestamp","gmtoffset"])
 
     coin_df["scaled_price"] = scaleMinMax(coin_df["close"])
     coin_df = coin_df.set_index("ts")
@@ -65,7 +66,7 @@ def joinTimeSeries(Dict,window=300):
     df = pd.DataFrame()
 
     for d in Dict.items():       
-        scaled_price = d[1].copy(deep=True).drop(columns=['timestamp', 'gmtoffset',"open","high","close","low","volume"])
+        scaled_price = d[1].copy(deep=True).drop(columns=["open","high","close","low","volume"])
         join = scaled_price.rename(columns={"scaled_price": d[0]})
     
         df = df.join(join,how="outer")

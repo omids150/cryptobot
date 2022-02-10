@@ -5,15 +5,19 @@ import lagtestV2 as lg
 def get_corr_data(start=30):
     main_coin_dict = lg.get_main_coins_eod(start=start)
     coins = lg.joinTimeSeries(main_coin_dict)
-    coins = coins.drop(columns=["BTC","ETH","ADA","XRP","SOL","scaled_price","returns","scaled_price_std"])
+    coins = coins.drop(columns=["BTC","ETH","ADA","XRP","SOL","scaled_price","returns"])
+    #"scaled_price_std"
     return coins
 
 ########## DEF FEED #################################
 class custemData(bt.feeds.PandasData):
-    lines = ("rolling",)
-    params = (("rolling", 8),)
-    pass
-
+    lines = ("rolling","scaled_price","scaled_price_std")
+    params =(
+            ("scaled_price",5),
+            ("scaled_price_std",6)
+            ("rolling", 7),
+            )
+    
 # Create a Stratey
 class TestStrategy(bt.Strategy):
 
@@ -24,9 +28,12 @@ class TestStrategy(bt.Strategy):
 
     def __init__(self):
         # Keep a reference to the "close" line in the data[0] dataseries
-        self.dataclose = self.datas[0].rolling
+        self.rolling = self.datas[0].rolling
+        self.scaled_price = self.datas[0].scaled_price
+
+        
 
     def next(self):
-        # pass
+        pass
         # Simply log the closing price of the series from the reference
-        self.log('Close, %.2f' % self.dataclose[0])
+        #self.log(f'BTC: {self.scaled_price[0]} rolling: {self.rolling[0]}' )
