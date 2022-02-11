@@ -1,11 +1,10 @@
 import backtrader as bt
 import lagtestV2 as lg 
-import time
 
 ############ GET CORR DATA #############
 def get_corr_data(start=30):
     main_coin_dict = lg.get_main_coins_eod(start=start)
-    coins = lg.joinTimeSeries(main_coin_dict)
+    coins = lg.joinTimeSeries(main_coin_dict,window=700)
     coins = coins.drop(columns=["BTC","ETH","ADA","XRP","SOL","scaled_price","returns"])
     #"scaled_price_std"
     return coins
@@ -32,6 +31,8 @@ class TestStrategy(bt.Strategy):
         self.rolling = self.datas[0].rolling
         self.scaled_price = self.datas[0].scaled_price
         self.scaled_price_std = self.datas[0].scaled_price_std[0]
+
+        self.order = self.buy()
         
 
     def next(self):

@@ -6,22 +6,16 @@ cerebro = bt.Cerebro(runonce=False)
 cerebro.broker.setcash(100000000.0)
 cerebro.addstrategy(TestStrategy)
 
-Time = 30
+Time = 60
 
-dataframe = lg.get_coin_by_name_eod("BTC",start=Time)
+#get coin data
+dataframe = lg.get_coin_by_name_eod("ADA",start=Time)
 
-################
-################
-################
-
+# get indicator data -> scaled prices 
 ind = get_corr_data(start=Time)
-# print(ind)
-# print(dataframe)
 
+# join data frames 
 datafeed = dataframe.join(ind,how="outer")
-################
-################
-################
 
 # get and add data feed 
 data = custemData(dataname=datafeed)

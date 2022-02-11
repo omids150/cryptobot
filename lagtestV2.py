@@ -7,9 +7,8 @@ import config as cfg
 from time import time
 import lag_Corr as lg 
 import matplotlib.pyplot as plt 
-
-
-from lagtest import windowed_time_lagged_cross_correlation 
+import math
+import backtrader as bt 
 
 def scaleMinMax(a):
     # use min max scaler to scale data into compareble prices 
@@ -51,12 +50,21 @@ def get_main_coins_eod(names=["BTC","ETH","ADA","XRP","SOL"],interval="1m",start
     
     return coin_dict
 
-def returnsAndStd(coin,rolling = True,window = 300):
+# Weightet moving avrave for Hull moving avrage 
+def WMA(s, window):
+       return s.rolling(window).apply(lambda x: ((np.arange(window)+1)*x).sum()/(np.arange(window)+1).sum(), raw=True)
+def HMA(s, window):
+       return WMA(WMA(s, window//2).multiply(2).sub(WMA(s, window)), int(np.sqrt(window)))
+
+def returnsAndStd(coin, rolling = True,window = 300):
     coin["returns"] = coin["scaled_price"]-coin["scaled_price"].shift(1)
     coin["scaled_price_std"] = coin["scaled_price"].std()
 
     if rolling == True:
-        coin["rolling"] = coin["scaled_price"].rolling(window).mean()
+        
+        # coin["rolling"] = coin["scaled_price"].ewm(com=0.8).mean() # -> expnential moving avrage seems trash!
+        coin["rolling"] = HMA(s = coin["scaled_price"],window=window) # -> Hull Moving Avrage 
+        # coin["rolling"] = coin["scaled_price"].rolling(window).mean() # -> Simple moving avrage 
 
     return coin 
 
