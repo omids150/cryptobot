@@ -16,6 +16,7 @@ ind = get_corr_data(start=Time)
 
 # join data frames 
 datafeed = dataframe.join(ind,how="outer")
+print(datafeed)
 
 # get and add data feed 
 data = custemData(dataname=datafeed)

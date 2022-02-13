@@ -58,13 +58,13 @@ def HMA(s, window):
 
 def returnsAndStd(coin, rolling = True,window = 300):
     coin["returns"] = coin["scaled_price"]-coin["scaled_price"].shift(1)
-    coin["scaled_price_std"] = coin["scaled_price"].std()
+    coin["scaled_price_std"] = coin["scaled_price"].std() * 0.85
 
     if rolling == True:
         
         # coin["rolling"] = coin["scaled_price"].ewm(com=0.8).mean() # -> expnential moving avrage seems trash!
-        coin["rolling"] = HMA(s = coin["scaled_price"],window=window) # -> Hull Moving Avrage 
-        # coin["rolling"] = coin["scaled_price"].rolling(window).mean() # -> Simple moving avrage 
+        # coin["rolling"] = HMA(s = coin["scaled_price"],window=window) # -> Hull Moving Avrage 
+        coin["rolling"] = coin["scaled_price"].rolling(window).mean() # -> Simple moving avrage 
 
     return coin 
 
