@@ -30,20 +30,20 @@ class TestStrategy(bt.Strategy):
         # Keep a reference to the "close" line in the data[0] dataseries
         self.rolling = self.datas[0].rolling
         self.scaled_price = self.datas[0].scaled_price
-        self.scaled_price_std = self.datas[0].scaled_price_std[0]
-
-        self.order = self.buy()
-        
+        self.scaled_price_std = self.datas[0].scaled_price_std[0]        
+    
+    def nextstart(self):
+        # Buy all the available cash
+        self.buy(size=10) 
 
     def next(self):
-        pass
         # Simply log the closing price of the series from the reference
-        self.log(f'BTC: {self.scaled_price[0]} rolling: {self.rolling[0]} std_scaled_price: {self.scaled_price_std}')
+        self.log(f'scaled price: {self.scaled_price[0]} rolling: {self.rolling[0]} std_scaled_price: {self.scaled_price_std}')
+
+        last_action_sell = None
 
         if self.scaled_price < self.scaled_price_std-self.rolling:
-            self.buy()
             self.order = self.buy()
         elif self.scaled_price > self.scaled_price_std+self.rolling:
-            self.sell()
             self.order = self.sell()
         

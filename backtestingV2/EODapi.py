@@ -1,7 +1,8 @@
 import requests
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 import stats as s
+from time import time
+import config as cfg
 
 def get_coin_by_name_eod(name,interval="1m",start=30,end=time()):
     #start in days you want to look back 
@@ -17,7 +18,7 @@ def get_coin_by_name_eod(name,interval="1m",start=30,end=time()):
     coin_df = coin_df.rename(columns={"datetime": "ts"})
     coin_df = coin_df.drop(columns=["timestamp","gmtoffset"])
 
-    coin_df["scaled_price"] = s.scaleMinMax(coin_df["close"])
+    #coin_df["scaled_price"] = s.scaleMinMax(coin_df["close"])
     coin_df = coin_df.set_index("ts")
     coin_df.index = pd.to_datetime(coin_df.index)
 
