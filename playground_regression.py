@@ -7,7 +7,7 @@ main_coins = ["BTC","ETH","ADA","XRP","SOL"]
 
 main_coins = lg.get_main_coins_eod(main_coins,start=80,interval="1m")
 
-join_df = lg.joinTimeSeries(main_coins,window=1000)
+join_df = lg.joinTimeSeries(main_coins,window=700)
 
 fig = lg.plot_chart(join_df)
 

@@ -1,6 +1,5 @@
 #modules
 import backtrader as bt
-import backtrader.feeds as btfeeds
 
 # fiels 
 from btFunc import *

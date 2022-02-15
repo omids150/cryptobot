@@ -9,10 +9,14 @@ class TestStrategy(bt.Strategy):
 
     def __init__(self):
         # Keep a reference to the "close" line in the data[0] dataseries
-        self.close = self.datas[0].close
-    
+        self.coins = {}
+
+        for coin in self.datas:
+            self.coins[coin._name] = coin
+
     def next(self):
+        pass
         # Simply log the closing price of the series from the reference
-        for d in self.datas:
-            self.log(f"i:{d._name} d: {d[0]}")
+
+        # self.log(f"{self.coins['SOL'][0]}")
 
