@@ -11,15 +11,8 @@ Time = 60
 #get coin data
 dataframe = lg.get_coin_by_name_eod("ADA",start=Time)
 
-# get indicator data -> scaled prices 
-ind = get_corr_data(start=Time)
-
-# join data frames 
-datafeed = dataframe.join(ind,how="outer")
-print(datafeed)
-
 # get and add data feed 
-data = custemData(dataname=datafeed)
+data = custemData(dataname=dataframe)
 cerebro.adddata(data)
 
 cerebro.broker.setcommission(commission=0.001)

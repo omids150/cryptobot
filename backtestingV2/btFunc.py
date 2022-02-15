@@ -18,5 +18,8 @@ class TestStrategy(bt.Strategy):
         pass
         # Simply log the closing price of the series from the reference
 
+        a = self.coins["SOL"].get(size=3, ago=-3)
+        self.log(f"{a}")
+        
         # self.log(f"{self.coins['SOL'][0]}")
 

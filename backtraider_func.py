@@ -9,15 +9,6 @@ def get_corr_data(start=30):
     #"scaled_price_std"
     return coins
 
-########## DEF FEED #################################
-class custemData(bt.feeds.PandasData):
-    lines = ("rolling","scaled_price","scaled_price_std")
-    params =(
-            ("scaled_price",5),
-            ("scaled_price_std",6),
-            ("rolling", 7),
-            )
-    
 # Create a Stratey
 class TestStrategy(bt.Strategy):
 

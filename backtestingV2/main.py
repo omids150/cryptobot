@@ -9,7 +9,7 @@ cerebro = bt.Cerebro(runonce=False)
 cerebro.broker.setcash(100000000.0)
 cerebro.addstrategy(TestStrategy)
 
-main_coins = get_main_coins_eod()
+main_coins = get_main_coins_eod(start=1)
 
 for name,df in main_coins.items():
     data = bt.feeds.PandasData(dataname=df)
