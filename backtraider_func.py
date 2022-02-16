@@ -19,22 +19,15 @@ class TestStrategy(bt.Strategy):
 
     def __init__(self):
         # Keep a reference to the "close" line in the data[0] dataseries
-        self.rolling = self.datas[0].rolling
-        self.scaled_price = self.datas[0].scaled_price
-        self.scaled_price_std = self.datas[0].scaled_price_std[0]        
-    
-    def nextstart(self):
-        # Buy all the available cash
-        self.buy(size=10) 
+        self.close = self.datas[0]
+
+    # def nextstart(self):
+    #     # Buy all the available cash
+    #     self.buy(size=10) 
 
     def next(self):
         # Simply log the closing price of the series from the reference
-        self.log(f'scaled price: {self.scaled_price[0]} rolling: {self.rolling[0]} std_scaled_price: {self.scaled_price_std}')
-
-        last_action_sell = None
-
-        if self.scaled_price < self.scaled_price_std-self.rolling:
-            self.order = self.buy()
-        elif self.scaled_price > self.scaled_price_std+self.rolling:
-            self.order = self.sell()
+        self.log(f"{self.close[0]}")
+        a = self.close.get(size=3, ago=-3)
+        self.log(f"{a}")
         
