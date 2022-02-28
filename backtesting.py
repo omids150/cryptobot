@@ -8,8 +8,8 @@ cerebro.addstrategy(TestStrategy)
 
 # get coin data
 dataframe = lg.get_coin_by_name_eod("ADA",start=1)
-print(dataframe[:3])
-dataframe = dataframe[:3].copy(deep=True)
+print(dataframe[:6])
+dataframe = dataframe[:6].copy(deep=True)
 data = bt.feeds.PandasData(dataname=dataframe)
 cerebro.adddata(data)
 

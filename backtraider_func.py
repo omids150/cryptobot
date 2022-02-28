@@ -28,6 +28,6 @@ class TestStrategy(bt.Strategy):
     def next(self):
         # Simply log the closing price of the series from the reference
         self.log(f"{self.close[0]}")
-        a = self.close.get(size=3, ago=-3)
+        a = self.close.get(size=6)
         self.log(f"{a}")
         
