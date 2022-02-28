@@ -11,3 +11,6 @@ def scaleMinMax(a):
     scaled_price = [float(i) for i in scaled_price] #-> problem 
 
     return scaled_price
+
+def mov_avg(arry):
+    pass

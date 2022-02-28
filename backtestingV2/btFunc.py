@@ -1,5 +1,7 @@
 import backtrader as bt
 
+mov_avg_window = 60
+
 class TestStrategy(bt.Strategy):
 
     def log(self, txt, dt=None):
@@ -15,11 +17,12 @@ class TestStrategy(bt.Strategy):
             self.coins[coin._name] = coin
 
     def next(self):
-        pass
         # Simply log the closing price of the series from the reference
 
-        a = self.coins["SOL"].get(size=3, ago=-3)
-        self.log(f"{a}")
-        
-        # self.log(f"{self.coins['SOL'][0]}")
+        a = self.coins["SOL"].get(size=mov_avg_window)
 
+        mov_avg_now =  sum(a)/mov_avg_window
+
+        self.log(f"{a}")
+        self.log(f"{sum(a)/mov_avg_window}")
+        
