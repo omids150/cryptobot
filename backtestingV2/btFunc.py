@@ -1,6 +1,7 @@
 import backtrader as bt
+import numpy as np
 
-mov_avg_window = 60
+window = 1
 
 class TestStrategy(bt.Strategy):
 
@@ -13,18 +14,22 @@ class TestStrategy(bt.Strategy):
         # Keep a reference to the "close" line in the data[0] dataseries
         self.coins = {}
 
-        for coin in self.datas:
-            self.coins[coin._name] = coin
+        for coin in self.datas: self.coins[coin._name] = coin
+
 
     def next(self):
         # Simply log the closing price of the series from the reference
 
-        for coin in self.coins.values():
-            self.log(f"{coin.get(size=mov_avg_window)}")
+        avg = np.array([])
+        for coin in self.coins.items():
+            c = coin[1].get(size=window)
+            
+            c += c
 
-        # a = self.coins["SOL"].get(size=mov_avg_window)
+            self.log(c)
 
-        # mov_avg_now =  sum(a)/mov_avg_window
+            avg += c
+            self.log(f"{avg}")
 
-        # self.log(f"{a}")
-        # self.log(f"{sum(a)/mov_avg_window}")
+        else: 
+            self.log(f"-----------------------")
