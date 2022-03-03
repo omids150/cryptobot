@@ -19,10 +19,12 @@ class TestStrategy(bt.Strategy):
     def next(self):
         # Simply log the closing price of the series from the reference
 
-        a = self.coins["SOL"].get(size=mov_avg_window)
+        for coin in self.coins.values():
+            self.log(f"{coin.get(size=mov_avg_window)}")
 
-        mov_avg_now =  sum(a)/mov_avg_window
+        # a = self.coins["SOL"].get(size=mov_avg_window)
 
-        self.log(f"{a}")
-        self.log(f"{sum(a)/mov_avg_window}")
-        
+        # mov_avg_now =  sum(a)/mov_avg_window
+
+        # self.log(f"{a}")
+        # self.log(f"{sum(a)/mov_avg_window}")
