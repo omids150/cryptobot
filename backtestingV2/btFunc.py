@@ -1,7 +1,7 @@
 import backtrader as bt
 import numpy as np
 
-window = 1
+window = 2
 
 class TestStrategy(bt.Strategy):
 
@@ -20,16 +20,21 @@ class TestStrategy(bt.Strategy):
     def next(self):
         # Simply log the closing price of the series from the reference
 
-        avg = np.array([])
+        avg_array = [0 for i in range(0,2)]
+        avg_array = np.array(avg_array)
+
+        self.log(f"{avg_array}")
+
         for coin in self.coins.items():
             c = coin[1].get(size=window)
+            c = np.array(c)
             
-            c += c
-
             self.log(c)
+            #self.log(type(c[1]))
 
-            avg += c
-            self.log(f"{avg}")
+            #avg_array += c
+
+            self.log(avg_array)
 
         else: 
             self.log(f"-----------------------")
