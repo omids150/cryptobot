@@ -27,14 +27,15 @@ class TestStrategy(bt.Strategy):
 
         for coin in self.coins.items():
             c = coin[1].get(size=window)
-            c = np.array(c)
             
-            self.log(c)
+            #c = np.array(c)
+            
+            self.log(c[-1])
             #self.log(type(c[1]))
 
             #avg_array += c
 
-            self.log(avg_array)
+            #self.log(avg_array[0])
 
         else: 
             self.log(f"-----------------------")
