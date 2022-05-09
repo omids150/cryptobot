@@ -20,18 +20,19 @@ class TestStrategy(bt.Strategy):
     def next(self):
         # Simply log the closing price of the series from the reference
 
-        avg_array = [0 for i in range(0,2)]
-        avg_array = np.array(avg_array)
-
-        self.log(f"{avg_array}")
-
+        # avg_array = [0 for i in range(0,2)]
+        # avg_array = np.array(avg_array)
+        # self.log(f"{avg_array}")
+        
         for coin in self.coins.items():
             c = coin[1].get(size=window)
             
             #c = np.array(c)
+            self.log(len(c))
+            self.log(c)
+            if len(c)!=0:
+                self.log(sum(c)/len(c))
             
-            self.log(c[-1])
-            #self.log(type(c[1]))
 
             #avg_array += c
 
